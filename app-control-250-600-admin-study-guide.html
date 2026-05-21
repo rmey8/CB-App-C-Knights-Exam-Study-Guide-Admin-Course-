@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>250-600: CB App Control Administrator Study Guide</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #A32D2D; --red-light: #FCEBEB; --red-dark: #501313; --red-mid: #E24B4A;
+    --bg: #f8f7f5; --surface: #fff; --border: rgba(0,0,0,0.09);
+    --text: #1a1a1a; --text-muted: #666; --text-hint: #999;
+    --success: #3B6D11; --success-bg: #EAF3DE;
+    --danger: #A32D2D; --danger-bg: #FCEBEB;
+    --amber: #854F0B; --amber-bg: #FAEEDA;
+    --info: #185FA5; --info-bg: #E6F1FB;
+    --nav-bg: #1C3557;
+    --radius: 8px; --radius-lg: 12px;
+    --font: system-ui, -apple-system, sans-serif;
+    --mono: 'Courier New', monospace;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+  .header { background: var(--red-dark); color: white; padding: 14px 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; border-bottom: 3px solid var(--red-mid); }
+  .header-badge { background: var(--red-mid); font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .header h1 { font-size: 15px; font-weight: 500; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .top-nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 57px; z-index: 199; overflow-x: auto; }
+  .top-tab { padding: 11px 16px; border: none; background: none; font-family: var(--font); font-size: 14px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
+  .top-tab:hover { color: var(--text); }
+  .top-tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 500; }
+  .main { max-width: 980px; margin: 0 auto; padding: 24px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .domain-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .domain-chip { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--text-muted); white-space: nowrap; }
+  .domain-chip:hover { border-color: var(--red); color: var(--red); }
+  .domain-chip.active { background: var(--red); border-color: var(--red); color: white; }
+  .domain-card { display: none; }
+  .domain-card.active { display: block; }
+  .guide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+  .guide-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .guide-icon { width: 38px; height: 38px; border-radius: var(--radius); background: var(--red-light); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .guide-card-header h2 { font-size: 16px; font-weight: 500; }
+  .guide-card-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .nav-path { display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: var(--mono); background: var(--nav-bg); color: #a8c4e0; padding: 8px 14px; border-radius: var(--radius); margin: 12px 0; flex-wrap: wrap; }
+  .nav-path .sep { color: #4a7fa8; }
+  .nav-path .current { color: #7dd3fc; font-weight: 500; }
+  .sop { margin: 14px 0; }
+  .sop-title { font-size: 13px; font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--red); color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .step-text { font-size: 14px; line-height: 1.6; flex: 1; }
+  .step-text strong { font-weight: 500; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--red); }
+  .tip { background: var(--amber-bg); border: 1px solid rgba(133,79,11,0.15); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--amber); }
+  .tip::before { content: "Exam tip  "; font-weight: 700; }
+  .info { background: var(--info-bg); border: 1px solid rgba(24,95,165,0.15); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--info); }
+  .warn { background: var(--red-light); border: 1px solid rgba(163,45,45,0.15); border-radius: var(--radius); padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--red); }
+  h3.sub { font-size: 14px; font-weight: 600; margin: 18px 0 10px; border-left: 3px solid var(--red); padding-left: 10px; color: var(--text); }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--bg); padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .mini-card { background: var(--bg); border-radius: var(--radius); padding: 12px 14px; border: 1px solid var(--border); }
+  .mini-card .mc-title { font-size: 12px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .mini-card ul { font-size: 13px; padding-left: 16px; }
+  .mini-card li { margin-bottom: 4px; }
+  @media(max-width:600px) { .two-col { grid-template-columns: 1fr; } }
+  /* QUIZ */
+  .quiz-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .progress-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--red); border-radius: 3px; transition: width 0.3s; }
+  .progress-text { font-size: 13px; color: var(--text-muted); font-family: var(--mono); white-space: nowrap; }
+  .quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px; margin-bottom: 14px; }
+  .q-number { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-family: var(--mono); }
+  .q-tag { display: inline-block; font-size: 11px; background: var(--red-light); color: var(--red); padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+  .q-source { display: inline-block; font-size: 10px; background: var(--success-bg); color: var(--success); padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; margin-left: 6px; font-family: var(--mono); }
+  .q-text { font-size: 15px; font-weight: 500; margin-bottom: 16px; line-height: 1.55; }
+  .multi-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; font-style: italic; }
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option-btn { width: 100%; text-align: left; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: var(--font); font-size: 14px; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; gap: 11px; align-items: flex-start; color: var(--text); }
+  .option-btn:hover:not(:disabled) { border-color: var(--red); background: var(--red-light); }
+  .option-btn.selected { border-color: var(--red); background: var(--red-light); }
+  .option-btn.correct { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+  .option-btn.incorrect { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
+  .option-letter { width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; margin-top: 1px; font-family: var(--mono); }
+  .submit-btn { background: var(--red); color: white; border: none; padding: 9px 22px; border-radius: var(--radius); font-family: var(--font); font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 14px; }
+  .submit-btn:disabled { background: var(--text-hint); cursor: not-allowed; }
+  .explanation { margin-top: 14px; padding: 13px; background: var(--info-bg); border: 1px solid rgba(24,95,165,0.18); border-radius: var(--radius); font-size: 13px; color: var(--info); display: none; line-height: 1.6; }
+  .explanation.show { display: block; }
+  .quiz-nav { display: flex; gap: 10px; margin-top: 14px; }
+  .nav-btn { padding: 7px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: var(--font); font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; }
+  .nav-btn:hover { border-color: var(--red); color: var(--red); }
+  .nav-btn:disabled { color: var(--text-hint); cursor: not-allowed; }
+  .nav-btn.primary { background: var(--red); color: white; border-color: var(--red); }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px; text-align: center; display: none; }
+  .score-card.show { display: block; }
+  .score-big { font-size: 60px; font-weight: 300; color: var(--red); font-family: var(--mono); }
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+  .fact-card { background: var(--bg); border-radius: var(--radius); padding: 12px 14px; border-left: 3px solid var(--red); }
+  .fact-card .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .fact-card .value { font-size: 13px; font-weight: 500; }
+  .domain-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .domain-row:last-child { border-bottom: none; }
+  .domain-bar-wrap { width: 100px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .domain-bar { height: 100%; border-radius: 3px; }
+  /* TUTOR */
+  .tutor-area { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; height: 520px; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 88%; padding: 11px 15px; border-radius: var(--radius-lg); font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: var(--red); color: white; border-bottom-right-radius: 4px; }
+  .msg.assistant { align-self: flex-start; background: var(--bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg.thinking { align-self: flex-start; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); font-style: italic; font-size: 13px; border-bottom-left-radius: 4px; }
+  .chat-input-row { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); }
+  .chat-input { flex: 1; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-family: var(--font); font-size: 14px; outline: none; background: var(--bg); }
+  .chat-input:focus { border-color: var(--red); }
+  .chat-send { background: var(--red); color: white; border: none; border-radius: var(--radius); padding: 8px 16px; font-family: var(--font); font-size: 14px; cursor: pointer; }
+  .chat-send:disabled { background: var(--text-hint); cursor: not-allowed; }
+  .quick-questions { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .quick-q { padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 12px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+  .quick-q:hover { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-badge">250-600</div>
+  <div>
+    <h1>CB App Control Administrator — Study Guide</h1>
+    <div class="header-sub">Built from official course slides · Admin-focused · Console navigation + SOPs</div>
+  </div>
+</div>
+<nav class="top-nav">
+  <button class="top-tab active" onclick="switchTab('guide',this)">Study Guide</button>
+  <button class="top-tab" onclick="switchTab('quiz',this)">Practice Quiz</button>
+  <button class="top-tab" onclick="switchTab('tutor',this)">AI Tutor</button>
+</nav>
+<div class="main">
+  <div class="section active" id="section-guide">
+    <div class="domain-nav" id="domainNav"></div>
+    <div id="domainCards"></div>
+  </div>
+  <div class="section" id="section-quiz">
+    <div class="quiz-progress">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 34</div>
+    </div>
+    <div id="quizArea"></div>
+    <div class="score-card" id="scoreCard">
+      <div class="score-big" id="scoreBig"></div>
+      <div class="score-label" style="font-size:14px;color:var(--text-muted);margin-top:6px;">correct</div>
+      <div style="font-size:18px;font-weight:500;margin-top:14px;" id="scorePass"></div>
+      <div class="score-grid" id="scoreGrid"></div>
+      <div id="domainBreakdown" style="text-align:left;margin-top:16px;"></div>
+      <button class="nav-btn primary" onclick="resetQuiz()" style="margin-top:16px;">Retake</button>
+    </div>
+  </div>
+  <div class="section" id="section-tutor">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Ask anything about App Control administration — console navigation, how to configure policies, rule types, enforcement levels, tools, events, or baseline drift.</p>
+    <div class="quick-questions" id="quickQuestions"></div>
+    <div class="tutor-area">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg assistant">Ready. Ask me to walk through any admin task, explain a concept, or quiz you on any module from the course.</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="e.g. Walk me through creating a new policy step by step" onkeydown="if(event.key==='Enter')sendChat()" />
+        <button class="chat-send" id="chatSend" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const DOMAINS = [
+  {
+    id:'arch', icon:'🏗', title:'Architecture & Console', subtitle:'Module 2 — Components, access, login accounts',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🏗</div><div><h2>Architecture — 3 Components</h2><p>Source: Module 2 course slides</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Component</th><th>What It Does</th><th>Key Detail</th></tr></thead>
+          <tbody>
+            <tr><td><strong>The Endpoint</strong></td><td>CB App Control Agent — maintains active inventory of system endpoints, enforces policies supplied by the Server</td><td>Agent communicates to server on port <strong>41002</strong></td></tr>
+            <tr><td><strong>The Server</strong></td><td>Contains the product console, interfaces with Microsoft SQL Server database</td><td>On-premises Windows Server + SQL Server</td></tr>
+            <tr><td><strong>CB File Reputation Service</strong></td><td>Cloud service combining software reputation, threat indicators, and attack classification. Sends metadata to the Server.</td><td>Metadata only — file content does not leave the endpoint</td></tr>
+          </tbody>
+        </table></div>
+        <div class="info"><strong>Two-stage workflow:</strong> Stage 1 = Initialization (agent scans and inventories files). Stage 2 = Post-Initialization (ongoing enforcement, reputation lookups, event logging).</div>
+        <div class="tip">Port 41002 is tested directly in the official sample questions. The agent uses port 41002 to communicate with the App Control Server. Answer = TRUE.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🖥</div><div><h2>Accessing the Console</h2><p>Source: Module 2 course slides — Reviewing the Console</p></div></div>
+        <div class="nav-path"><span>Browser</span><span class="sep">→</span><span class="current">https://server_name.domain.extension</span></div>
+        <div class="sop">
+          <div class="sop-title">How to Log In</div>
+          <div class="step"><div class="step-num">1</div><div class="step-text">Open a web browser — the console is <strong>browser-based</strong>, accessible from any computer with network access to the server</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Enter the server URL: <code>https://server_name.domain.extension</code> — note the secure <strong>HTTPS</strong></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">If a certificate dialog appears, accept the digital certificate — the web server requires it to support SSL/HTTPS</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">Default username and password: <strong>admin / admin</strong></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Change the password immediately after installation</strong> — this is required</div></div>
+        </div>
+        <div class="warn"><strong>Default credentials are admin/admin.</strong> You must change the password immediately after installation. This is called out explicitly in the course.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🗺</div><div><h2>Console Navigation Map</h2><p>Source: Course slides — console screenshots</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Menu</th><th>What Lives Here</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Home</strong></td><td>Dashboard widgets: Alerts, Top X, Find Computer, Find Files or Events, Event Reports, Emergency Lockdown, Change Policy</td></tr>
+            <tr><td><strong>Reports</strong></td><td>Events, Cached Events, Dashboards, Baseline Drift (Reports + Snapshots), External Notifications</td></tr>
+            <tr><td><strong>Assets</strong></td><td>Computers, Files (File Catalog, Files on Computers), Applications (Application Catalog, Applications on Computers), Devices (Device Catalog, Devices on Computers), Certificates</td></tr>
+            <tr><td><strong>Rules</strong></td><td>Policies, Notifiers, Software Rules (Updaters, Rapid Configs, Publishers, Users, Directories, Files, Custom, Memory, Registry, Scripts, Reputation), Event Rules, Indicator Sets</td></tr>
+            <tr><td><strong>Tools</strong></td><td>Meters, Alerts, Find Files, Approval Requests, Requested Files (Uploaded, Analyzed, Diagnostic)</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Policies are under the <strong>Rules menu</strong>. Events are under the <strong>Reports menu</strong>. Baseline Drift is under <strong>Reports menu</strong>. Tools are under the <strong>Tools menu</strong>. Know these locations — exam will test "where do you go to do X."</div>
+      </div>`
+  },
+  {
+    id:'policies', icon:'📋', title:'Policies', subtitle:'Module 3 — Modes, enforcement levels, built-in policies, configuration',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔒</div><div><h2>Modes and Enforcement Levels</h2><p>Source: Module 3 course slides — exact definitions from course</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Mode / Level</th><th>Exact Course Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>VISIBILITY mode</strong></td><td>Tracks files and events. Does NOT affect file execution or file writing.</td></tr>
+            <tr><td><strong>LOW enforcement</strong> (Control mode)</td><td>Permits unapproved executables to run but tracks them. Records first instance of a permitted file execution AND all blocked executions.</td></tr>
+            <tr><td><strong>MEDIUM enforcement</strong> (Control mode)</td><td>Blocks unapproved executables but displays dialog box to give approval options. Users CANNOT permit execution of explicitly banned files.</td></tr>
+            <tr><td><strong>HIGH enforcement</strong> (Control mode)</td><td>No unapproved OR banned files are allowed to run. Blocked file executions are tracked in the event log.</td></tr>
+            <tr><td><strong>DISABLED mode</strong></td><td>Stops ALL enforcement AND tracking activities. Use to debug a system fault or remove the Agent from a computer.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q161919 from course quiz: "Which enforcement level permits unapproved executables to run but tracks them and records first instance of a permitted file execution and all blocked executions?" = <strong>LOW enforcement</strong>. Q161920: "Which blocks unapproved but displays dialog box?" = <strong>MEDIUM enforcement</strong>.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📁</div><div><h2>Built-In Policies</h2><p>Source: Module 3 course slides — Built-In Policies (1) and (2)</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Policy</th><th>Purpose</th><th>Key Note</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Default Policy</strong></td><td>Used when a computer reporting to App Control is in a non-existent or deleted policy. Computers can automatically move into this policy.</td><td>Must examine its enforcement level settings carefully. You can adjust all default policy settings.</td></tr>
+            <tr><td><strong>Local Approval Policy</strong></td><td>Permits new unapproved software to be locally approved on computers under this policy</td><td>Used for computers that need flexible software approval</td></tr>
+            <tr><td><strong>Template Policy</strong></td><td>Used as a way to create other policies. Initial Device and Advanced settings of first policy you create are based on Template policy settings.</td><td>You can base initial settings on any existing policy including the default policy</td></tr>
+          </tbody>
+        </table></div>
+        <div class="info">The Default Policy is the fallback — any computer in a non-existent or deleted policy automatically moves here. This is why you must examine its enforcement level.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">⚙️</div><div><h2>Policy Configuration — Tabs and Settings</h2><p>Source: Module 3 course slides — Edit Policy screen</p></div></div>
+        <div class="nav-path"><span>Rules</span><span class="sep">→</span><span>Policies</span><span class="sep">→</span><span class="current">Click policy name or Add Policy</span></div>
+        <h3 class="sub">Policy Tabs</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tab</th><th>What It Controls</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Advanced</strong></td><td>Core enforcement rules: block unanalyzed scripts/executables, block unapproved scripts, block unapproved executables, block banned file names/hashes, enforce memory/registry/custom rules, tamper protection, terminate processes with banned images</td></tr>
+            <tr><td><strong>File Rules</strong></td><td>File-based rules</td></tr>
+            <tr><td><strong>Custom Rules</strong></td><td>Custom rules assigned to this policy</td></tr>
+            <tr><td><strong>Memory Rules</strong></td><td>Memory protection rules</td></tr>
+            <tr><td><strong>Registry Rules</strong></td><td>Registry protection rules</td></tr>
+            <tr><td><strong>Publisher Rules</strong></td><td>Publisher-based trust rules</td></tr>
+            <tr><td><strong>Rapid Configs</strong></td><td>Pre-built configuration bundles</td></tr>
+            <tr><td><strong>Computers</strong></td><td>Computers assigned to this policy</td></tr>
+            <tr><td><strong>Device Control Settings</strong></td><td>Block/report reads and writes to unapproved/banned removable devices. Block executions from removable devices.</td></tr>
+          </tbody>
+        </table></div>
+        <h3 class="sub">Key Policy Options</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Option</th><th>What It Does</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Mode</strong></td><td>Visibility / Control / Disabled</td></tr>
+            <tr><td><strong>Enforcement Level</strong></td><td>Set separately for Connected and Disconnected endpoints</td></tr>
+            <tr><td><strong>Allow Upgrades</strong></td><td>Checkbox — allows software upgrades</td></tr>
+            <tr><td><strong>Track File Changes</strong></td><td>Checkbox — tracks file modifications</td></tr>
+            <tr><td><strong>Load Agent in Safe Mode</strong></td><td>Checkbox</td></tr>
+            <tr><td><strong>Suppress Logo In Notifier</strong></td><td>Checkbox</td></tr>
+            <tr><td><strong>Locally approve unapproved files on transition from Visibility or Low to Medium or High</strong></td><td>Checkbox — DEFAULT is ON. When transitioning enforcement levels up, unapproved files automatically become locally approved. Deselect to disable this behavior.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="warn"><strong>Critical:</strong> When you transition from Visibility or Low enforcement to Medium or High, any unapproved files automatically become locally approved by default. This is a checkbox in the policy — deselect "Locally approve unapproved files on transition..." to disable this behavior.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔗</div><div><h2>Assigning Policies</h2><p>Source: Module 3 course slides — Assigning Policies</p></div></div>
+        <div class="info"><strong>Key principle:</strong> Assigning a policy does NOT deploy the agent. The agent must be deployed separately via USB, DVD, download, SCCM, Altiris, LAN desk, Tivoli, or other software deployment strategies.</div>
+        <h3 class="sub">Two Ways to Reassign a Policy After Deployment</h3>
+        <div class="sop">
+          <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Manually</strong> — reassign the policy on an endpoint from the console</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Automatically</strong> — configure App Control Agent to assign policy based on mappings to <strong>AD Computers, AD Users, or AD Groups</strong></div></div>
+        </div>
+        <div class="tip">Q161773 from course quiz: "True or False: Policies can be assigned to endpoints through the Active Directory user information." = <strong>TRUE</strong> — automatic assignment supports AD Computers, Users, OR Groups.</div>
+        <div class="info"><strong>Tamper Protection</strong> prevents the Carbon Black App Control Agent from being disabled or removed.</div>
+        <h3 class="sub">Timed Policy Override</h3>
+        <div class="step"><div class="step-num" style="background:var(--amber)">!</div><div class="step-text">A Timed Policy Override temporarily changes a computer's policy settings for a defined time period. The override <strong>continues even if the machine is restarted</strong>. The agent is disconnected from the server during the override period.</div></div>
+      </div>`
+  },
+  {
+    id:'computers', icon:'💻', title:'Viewing Computers', subtitle:'Module 4 — Computer details, status colors, saved views',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">💻</div><div><h2>The Computers Page</h2><p>Source: Module 4 course slides</p></div></div>
+        <div class="nav-path"><span>Assets</span><span class="sep">→</span><span class="current">Computers</span></div>
+        <h3 class="sub">Connection Status Colors — Know All 5</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Color</th><th>Exact Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span style="color:#185FA5;font-weight:700">● BLUE</span></td><td>Connected and up to date</td></tr>
+            <tr><td><span style="color:#666;font-weight:700">● GRAY</span></td><td>Disconnected but up to date</td></tr>
+            <tr><td><span style="color:#EF9F27;font-weight:700">● YELLOW</span></td><td>Connected but unsupported — agent is out of date OR computer requires a reboot</td></tr>
+            <tr><td><span style="color:#999;font-weight:700">○ WHITE/CLEAR</span></td><td>Template computer (gray border)</td></tr>
+            <tr><td><span style="color:#A32D2D;font-weight:700">● RED</span></td><td>Connected but health check failed — requires immediate attention</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q161923: "What does a YELLOW status mean?" = Connected but unsupported (agent out of date or requires reboot). Q161924: "What does a RED status mean?" = Connected but health check failed, needs immediate attention.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">👁</div><div><h2>Saved Views on the Computers Page</h2><p>Source: Module 4 course slides — Saved Views</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Saved View</th><th>What It Shows</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Active computers</strong></td><td>Currently active, not deleted, computers</td></tr>
+            <tr><td><strong>Carbon Black EDR deployments</strong></td><td>Computers grouped by Carbon Black EDR deployment status</td></tr>
+            <tr><td><strong>Cloned computers</strong></td><td>Computers that have been cloned from a template</td></tr>
+            <tr><td><strong>Computers in local approval</strong></td><td>Computers that have received local approval permissions</td></tr>
+            <tr><td><strong>Computers requiring upgrade</strong></td><td>Computers running outdated agents</td></tr>
+            <tr><td><strong>Connected computers</strong></td><td>Computers running agents currently connected to the server</td></tr>
+            <tr><td><strong>Disconnected computers</strong></td><td>Computers running agents NOT currently connected to the server</td></tr>
+            <tr><td><strong>Duplicate computers</strong></td><td>Computers with the same name as another computer in your database</td></tr>
+            <tr><td><strong>Template computers</strong></td><td>Computers that are templates for cloned computers</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q161921: "Which saved view shows computers not currently communicating with the server?" = <strong>Disconnected computers</strong>. Q161922: "Which shows computers that are a 'gold master' for virtualization?" = <strong>Template computers</strong>.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔧</div><div><h2>Agent Diagnostics — dascli</h2><p>Source: Module 4 course slides — command prompt screenshot</p></div></div>
+        <h3 class="sub">Check Agent Status from the Endpoint</h3>
+        <div style="background:var(--nav-bg);border-radius:var(--radius);padding:12px 16px;margin:12px 0;font-family:var(--mono);font-size:13px;color:#a8c4e0;line-height:1.8;">
+          cd "C:\Program Files (x86)\Bit9\Parity Agent"<br>
+          dascli status
+        </div>
+        <div class="info">The dascli tool is the local command line interface for the App Control Agent on Windows. Located in the Parity Agent directory. Used to check agent status, connectivity, and enforcement state from the endpoint itself.</div>
+        <h3 class="sub">Deleting Files</h3>
+        <div class="step"><div class="step-num" style="background:var(--amber)">!</div><div class="step-text">You can delete files globally or on specific computers. Deleting files gets <strong>scheduled — it does NOT happen instantly</strong>. Requires permissions to be set.</div></div>
+      </div>`
+  },
+  {
+    id:'rules', icon:'⚙️', title:'Rules', subtitle:'Module 5 — Custom rule types, paths, macros, event rules',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">⚙️</div><div><h2>About Rules</h2><p>Source: Module 5 course slides — About Rules</p></div></div>
+        <div class="info">Rules define the actions you want the agent to take in response to file, directory, or process activity. Rules optimize system performance, protect file integrity, create trusted file paths, and meet other special needs. While policies define the enforcement level, <strong>rules truly determine what is or is not allowed to run in the environment.</strong></div>
+        <div class="nav-path"><span>Rules</span><span class="sep">→</span><span>Software Rules</span><span class="sep">→</span><span class="current">Custom</span></div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📋</div><div><h2>Custom Rule Types — All 5</h2><p>Source: Module 5 course slides — Custom Rule Types</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Rule Type</th><th>Use Case</th><th>Course Quiz Answer</th></tr></thead>
+          <tbody>
+            <tr><td><strong>File Integrity Control</strong></td><td>Prevent a file from being modified — protects files from unauthorized changes. Write actions: Block or Report.</td><td>Q161926: "Which rule type would you use to prevent a file from being modified?" = <strong>File Integrity Control</strong></td></tr>
+            <tr><td><strong>Trusted Path</strong></td><td>Create a repository of installers for execution — approves all files within a designated directory path for execution</td><td>Q161927: "Which rule type creates a repository of installers for execution?" = <strong>Trusted Path</strong></td></tr>
+            <tr><td><strong>Execution Control</strong></td><td>Restrict the execution of specific binaries — allow or block specific files from running based on path/process/user context</td><td>Q161928: "Which rule type restricts the execution of specific binaries?" = <strong>Execution Control</strong></td></tr>
+            <tr><td><strong>File Creation Control</strong></td><td>Control what can be written to disk — most performant and secure custom rule type per official study guide</td><td>Official sample Q2: Most performant and secure = <strong>File Creation Control</strong></td></tr>
+            <tr><td><strong>Performance Optimization</strong></td><td>Exclude specific paths/processes from monitoring to reduce overhead — operational tuning, not a security control</td><td>Creates monitoring exclusions for high-volume trusted processes</td></tr>
+          </tbody>
+        </table></div>
+        <div class="info">All custom rule types are: process-specific, policy-specific, and subject to rule ranking.</div>
+        <div class="tip">Official sample Q10: "A File Creation Control rule is the first type of rule you should consider for resolving a block event." = <strong>TRUE</strong>. Official sample Q2: most performant and secure = <strong>File Creation Control (B)</strong>.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📂</div><div><h2>Identifying a Path or File</h2><p>Source: Module 5 course slides — Identifying a Path or File</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Method</th><th>Example / Note</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Full path and filename</strong></td><td><code>C:\folder_structure\filename</code></td></tr>
+            <tr><td><strong>Directory ending in \ or \*</strong></td><td>Identifies everything in the folder. The asterisk is a wildcard.</td></tr>
+            <tr><td><strong>Local drive name substitution</strong></td><td>Replace <code>C:\</code> with <code>*\</code> to apply to ALL disk devices, not only C drive</td></tr>
+            <tr><td><strong>UNC path</strong></td><td>Universal Naming Convention path (network share)</td></tr>
+            <tr><td><strong>Macros</strong></td><td>Enter <code>&lt;</code> (less than symbol) in the path text box to auto-populate known Windows folder options. Enter <code>&lt;reg</code> for registry macros.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Official sample Q3: "Which rule pattern is LEAST secure?" = <code>c:\folder\test\nameofapplication\*.exe</code> (answer D) — broadest wildcard, least specific. Rule expansion is multiplicative: 3 paths × 3 processes × 3 users = <strong>27 rules</strong> (official sample Q5, answer D).</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔔</div><div><h2>Event Rules</h2><p>Source: Module 5 course slides — Event Rules</p></div></div>
+        <div class="info">Event rules take automated actions when a file or computer-related event occurs that matches your defined filters. Actions include: <strong>file analysis, file approval, and automatic file bans</strong>. Each rule requires one event subtype (e.g., "New file on network"). You can add multiple subtypes and additional conditions like IP address or parent process properties.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🎯</div><div><h2>Indicator Sets</h2><p>Source: Module 5 course slides — Indicator Sets</p></div></div>
+        <div class="info">Indicator sets are advanced detection features that enhance other App Control capabilities. They include Advanced Threat indicators — rules grouped in indicator sets that detect threatening or suspicious activity. Examples: Windows Ransomware Indicators, Windows Process Injection, Windows POS Indicators, Linux/Mac detection sets. Located under: Rules → Indicator Sets.</div>
+      </div>`
+  },
+  {
+    id:'tools', icon:'🔧', title:'Tools', subtitle:'Module 6 — Meters, Alerts, Find Files, Approval Requests, Requested Files',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔧</div><div><h2>Available Tools — All 5</h2><p>Source: Module 6 course slides — Available Tools</p></div></div>
+        <div class="nav-path"><span class="current">Tools menu</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tool</th><th>What It Does</th><th>Course Quiz Answer</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Meters</strong></td><td>Monitor the number of executions of named files, and the users and computers executing them. Monitoring begins almost immediately after creation.</td><td>Q161307: "Which tool enables you to monitor the number of executions of files, and the users and computers executing them?" = <strong>Meters</strong></td></tr>
+            <tr><td><strong>Alerts</strong></td><td>Provide notifications in the console and by email when certain conditions are met. Three priority levels: Red=High, Orange=Medium, Yellow/Green=Low. Two classes: Built-in (preconfigured) and User-created.</td><td>Q161306: "Which tool can create notifications about specific events?" = <strong>Alerts</strong></td></tr>
+            <tr><td><strong>Find Files</strong></td><td>Locates all instances of an executable file on computers running the App Control Agent on your network</td><td>—</td></tr>
+            <tr><td><strong>Approval Requests</strong></td><td>Displays a list of file approval requests received from users on computers running the App Control Agent — ONLY when that user is blocked from a file action and requests that the file be approved</td><td>Q161308: "Which tool displays file approval requests from users blocked from a file action?" = <strong>Approval Requests</strong></td></tr>
+            <tr><td><strong>Requested Files</strong></td><td>Three tabs: <strong>Uploaded files, Analyzed files, Diagnostic files</strong></td><td>—</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📊</div><div><h2>About Meters</h2><p>Source: Module 6 course slides — About Meters</p></div></div>
+        <div class="info">Software metering tracks the number of times users run a specific file. When you create a meter, you configure what file is tracked — every time that file runs, the server records it. Use meters to: gather data about how often applications are used, determine which computers are running an application, locate old versions of software.</div>
+        <h3 class="sub">Creating a Meter — Steps</h3>
+        <div class="nav-path"><span>Tools</span><span class="sep">→</span><span>Meters</span><span class="sep">→</span><span class="current">Add Meter</span></div>
+        <div class="info">You can create as many meters as you require and centrally manage them including viewing reports, editing, and deleting. Monitoring begins almost immediately after you create the meter.</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">🔔</div><div><h2>About Alerts</h2><p>Source: Module 6 course slides — About Alerts</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Alert Priority</th><th>Indicator Color</th></tr></thead>
+          <tbody>
+            <tr><td><strong>High priority</strong></td><td>Red</td></tr>
+            <tr><td><strong>Medium priority</strong></td><td>Orange</td></tr>
+            <tr><td><strong>Low priority</strong></td><td>Yellow/Green</td></tr>
+          </tbody>
+        </table></div>
+        <h3 class="sub">User-Created Alert Types</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Alert Type</th><th>When It Fires</th></tr></thead>
+          <tbody>
+            <tr><td><strong>File Activity: Propagating File</strong></td><td>A locally unapproved file appears on more than a percentage of computers for the policies and time period you configure</td></tr>
+            <tr><td><strong>File Activity: Blocked File</strong></td><td>The same file is blocked on more than a configured percentage of computers for the policies and time period you configure</td></tr>
+            <tr><td><strong>Baseline Drift</strong></td><td>Baseline drift of files reaches the configured threshold</td></tr>
+            <tr><td><strong>File Prevalence</strong></td><td>A named file is present on more than a configured number of computers</td></tr>
+            <tr><td><strong>Event</strong></td><td>Configured events occur, or a specific event rule is triggered, more than a threshold number of times in the configured time period</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q161309 from course quiz: "The __________ alerts occurs when a locally unapproved file appears on more than a percentage of computers for the policies and time period you specify." = <strong>Propagating File</strong> (File Activity: Propagating File).</div>
+      </div>`
+  },
+  {
+    id:'events', icon:'📅', title:'Events', subtitle:'Module 7 — Events page, saved views, external analytics',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📅</div><div><h2>The Events Page</h2><p>Source: Module 7 course slides</p></div></div>
+        <div class="nav-path"><span>Reports</span><span class="sep">→</span><span class="current">Events</span></div>
+        <div class="info">Events are the recording of information on not only the agents, but also the server. The App Control Server updates event data for connected computers.</div>
+        <h3 class="sub">What the Events Page Records</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Event Type</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Files blocked</strong></td><td>Blocked file execution events</td></tr>
+            <tr><td><strong>Files executed</strong></td><td>Approved file execution events</td></tr>
+            <tr><td><strong>System management processes</strong></td><td>Server-side system activity</td></tr>
+            <tr><td><strong>Actions by console users</strong></td><td>Admin actions, logins, policy changes</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q161301: "True or False: You can connect App Control to an external Data Analytics solution to do further data analysis?" = <strong>TRUE</strong>. Q161322: "Other than the Events page, where can you monitor events?" = <strong>Dashboards</strong> (under Reports menu).</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">👁</div><div><h2>Events Page Saved Views</h2><p>Source: Module 7 course slides — Events page screenshot</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Saved View</th><th>What It Shows</th></tr></thead>
+          <tbody>
+            <tr><td>Alerts and Meters</td><td>Alert and meter-related events</td></tr>
+            <tr><td>Approval Requests</td><td>File approval request events</td></tr>
+            <tr><td>Blocked Files (All)</td><td>All blocked file events</td></tr>
+            <tr><td>Blocked Files (Banned)</td><td>Events for explicitly banned files</td></tr>
+            <tr><td>Blocked Files (Report Only)</td><td>Report-only mode block events</td></tr>
+            <tr><td>Blocked Files (Unapproved)</td><td>Events for unapproved file blocks</td></tr>
+            <tr><td>Cb Response</td><td>CB Response integration events</td></tr>
+            <tr><td>Computer Management</td><td>Computer and agent management events</td></tr>
+            <tr><td>Console Access</td><td>Console login/logout events</td></tr>
+            <tr><td>Device Control</td><td>Removable device events</td></tr>
+            <tr><td>File Analysis</td><td>File analysis submission events</td></tr>
+            <tr><td>Memory</td><td>Memory rule events</td></tr>
+            <tr><td>New Files (All/Approved/Banned/Unapproved)</td><td>New file discovery events by state</td></tr>
+            <tr><td>New Installations</td><td>New software installation events</td></tr>
+          </tbody>
+        </table></div>
+        <div class="info">Filtering and evaluating events within App Control can assist in rule creation, policy enforcement, console management, agent management, and operations of the overall App Control infrastructure.</div>
+      </div>`
+  },
+  {
+    id:'baseline', icon:'📉', title:'Baseline Drift', subtitle:'Module 8 — Terminology, drift values, reporting',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📉</div><div><h2>Baseline Drift Terminology — All 4 Terms</h2><p>Source: Module 8 course slides — Baseline Drift Terminology</p></div></div>
+        <div class="nav-path"><span>Reports</span><span class="sep">→</span><span>Baseline Drift</span><span class="sep">→</span><span class="current">Reports or Snapshots</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Term</th><th>Exact Course Definition</th><th>Course Quiz</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Target</strong></td><td>Collection of current files that you want to analyze</td><td>—</td></tr>
+            <tr><td><strong>Baseline</strong></td><td>Reference against which you compare the target</td><td>Q161323: "Which term refers to the reference against which you compare a target?" = <strong>Baseline</strong></td></tr>
+            <tr><td><strong>Snapshot</strong></td><td>Set of files collected from one or more computers</td><td>—</td></tr>
+            <tr><td><strong>Baseline Drift Report</strong></td><td>Report that contains information about the differences between a baseline and a target</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📊</div><div><h2>Basic Drift Values</h2><p>Source: Module 8 course slides — Baseline Drift: Basic Drift Values</p></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Value</th><th>Exact Course Definition</th><th>Course Quiz</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Drift</strong></td><td>Amount of drift measured simply in terms of files added, changed, and (if configured) deleted in the target</td><td>Q161324: "Which term refers to the files, added, changed, and deleted in the target?" = <strong>Drift</strong></td></tr>
+            <tr><td><strong>Weighted drift</strong></td><td>Calculation based on drift value, adjusted for factors that might increase or decrease significance: trust level, threat level, file type, and associations with other files</td><td>—</td></tr>
+            <tr><td><strong>Risk</strong></td><td>Calculation similar to weighted drift, but adjusted so that files believed to pose no threat show a risk of zero</td><td>Q161325: "Which term is similar to weighted drift but adjusted so files posing no threat show zero?" = <strong>Risk</strong></td></tr>
+            <tr><td><strong>% weighted drift</strong></td><td>Percentage of total weighted drift in the current report contributed by the item in a row</td><td>—</td></tr>
+            <tr><td><strong>% risk</strong></td><td>Percentage of total risk in the current report contributed by the item in a row</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">📋</div><div><h2>Baseline Drift Reporting</h2><p>Source: Module 8 course slides</p></div></div>
+        <div class="info">Baseline drift reports provide not only simple numbers of file differences but also risk analyses related to those changes. View reports as: <strong>Dynamic tables</strong> OR <strong>Graphic charts</strong> on a Carbon Black App Control dashboard.</div>
+        <div class="info">Two pre-configured reports exist by default: <strong>"Drift of all computers"</strong> and <strong>"Daily drift of all computers"</strong>. Both are set to <strong>Status: Disabled</strong> by default.</div>
+        <div class="warn"><strong>Q161302: "True or False: Baseline Drift reports run automatically" = FALSE.</strong> The pre-configured reports are disabled by default — they must be enabled and configured before they run.</div>
+        <div class="info">Comparing to a specific snapshot allows viewing the risk introduced into the agents and reviewing changes that increased the level of risk. Baseline Drift allows for viewing changes in systems over time.</div>
+      </div>`
+  },
+  {
+    id:'official', icon:'✅', title:'Official Sample Q&A', subtitle:'All 10 official sample questions with confirmed answers',
+    html:`
+      <div class="guide-card">
+        <div class="guide-card-header"><div class="guide-icon">✅</div><div><h2>Official Sample Questions — Confirmed Answers</h2><p>Source: 250-600 Exam Study Guide v1.0 — answer key confirmed</p></div></div>
+        <div class="warn"><strong>These are the 10 official questions from the exam study guide with the official answer key. Know all of these cold.</strong></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Q#</th><th>Question</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>True or False: The App Control agent uses port 41002 to communicate with the App Control Server.</td><td><strong>A — True</strong></td></tr>
+            <tr><td>2</td><td>Which type of custom rule is considered the most performant and secure?</td><td><strong>B — File Creation Control</strong></td></tr>
+            <tr><td>3</td><td>Which example rule pattern would be considered the least secure? (options use ?, *, *.exe patterns)</td><td><strong>D — c:\folder\test\nameofapplication\*.exe</strong> (broadest wildcard, least specific)</td></tr>
+            <tr><td>4</td><td>In which enforcement level are no unapproved or banned files permitted to run?</td><td><strong>A — High Enforcement</strong></td></tr>
+            <tr><td>5</td><td>If a Custom Rule is created with 3 paths, 3 processes, and 3 users defined, how many rules does that expand to?</td><td><strong>D — 27</strong> (3×3×3 = multiplicative, not additive)</td></tr>
+            <tr><td>6</td><td>What color will the Connected column show for an agent that is unprotected or requiring a restart?</td><td><strong>D — Red</strong></td></tr>
+            <tr><td>7</td><td>True or False: By default, the file catalog lists all "interesting" files ever seen in the environment.</td><td><strong>A — True</strong></td></tr>
+            <tr><td>8</td><td>Which approval method globally approves all files located within a particular file path on an agent?</td><td><strong>B — Trusted Directory</strong></td></tr>
+            <tr><td>9</td><td>Which two write actions are available for a File Integrity Control rule?</td><td><strong>A and B — Block and Report</strong></td></tr>
+            <tr><td>10</td><td>True or False: A File Creation Control rule is the first type of rule you should consider for resolving a block event.</td><td><strong>A — True</strong></td></tr>
+          </tbody>
+        </table></div>
+        <div class="tip">Q5 is the most commonly missed — rule expansion is MULTIPLICATIVE. 3 paths × 3 processes × 3 users = 27. Not 3+3+3=9, not 3×3=9. It is 27.</div>
+        <div class="tip">Q6 says Red for "unprotected or requiring restart" — this aligns with the course which says Red = health check failed. Note: Yellow = out of date OR requiring reboot (course definition). These two can be confused — on the official exam the answer for "unprotected or requiring restart" = Red (D).</div>
+      </div>`
+  }
+];
+
+const QUESTIONS = [
+  // OFFICIAL SAMPLE QUESTIONS
+  {id:1,domain:'Architecture',src:'official',
+   text:'True or False: The App Control agent uses port 41002 to communicate with the App Control Server.',
+   type:'single',options:['True','False'],correct:[0],
+   explanation:'TRUE — port 41002 is the agent-to-server communication port. This is confirmed in the official study guide answer key. The console is accessed via HTTPS (443).'},
+  {id:2,domain:'Rules',src:'official',
+   text:'Which type of custom rule is considered the most performant and secure?',
+   type:'single',options:['Execution Control','File Creation Control','File Integrity Control','Trusted Directory'],correct:[1],
+   explanation:'File Creation Control (B) — confirmed answer from the official study guide answer key. All custom rule types are process-specific, policy-specific, and subject to rule ranking.'},
+  {id:3,domain:'Rules',src:'official',
+   text:'Which example rule pattern would be considered the LEAST secure?',
+   type:'single',
+   options:['c:\\folder\\test\\nameofapplication\\modulename_Version????????\\?\\obj_????.exe','c:\\folder\\test\\nameofapplication\\modulename_*\\*\\*obj_????.exe','c:\\folder\\test\\nameofapplication\\modulename*\\*\\*.exe','c:\\folder\\test\\nameofapplication\\*.exe'],
+   correct:[3],
+   explanation:'D — c:\\folder\\...\\*.exe is least secure because the wildcard * matches anything in the folder with no version or name specificity. Options using ? are character-specific and more restrictive. Broader wildcards = less secure. Confirmed official answer.'},
+  {id:4,domain:'Policies',src:'official',
+   text:'In which enforcement level are no unapproved or banned files permitted to run?',
+   type:'single',options:['High Enforcement','Medium Enforcement','Low Enforcement','Disabled'],correct:[0],
+   explanation:'A — High Enforcement. Course definition: "No unapproved OR banned files are allowed to run. Blocked file executions are tracked in the event log." Confirmed official answer.'},
+  {id:5,domain:'Rules',src:'official',
+   text:'If a Custom Rule is created with 3 paths, 3 processes, and 3 users defined, how many rules does that expand to?',
+   type:'single',options:['3','6','9','27'],correct:[3],
+   explanation:'D — 27. Rule expansion is MULTIPLICATIVE: 3 paths × 3 processes × 3 users = 27. This is not additive (3+3+3=9) — it is each combination of path + process + user. Confirmed official answer.'},
+  {id:6,domain:'Computers',src:'official',
+   text:'What color will the Connected column show for an agent that is unprotected or requiring a restart?',
+   type:'single',options:['Blue','Gray','Yellow','Red'],correct:[3],
+   explanation:'D — Red. Per course slides: Red = connected but health check failed, requires immediate attention. Per official answer key: Red (D) for unprotected or requiring a restart. Confirmed official answer.'},
+  {id:7,domain:'Architecture',src:'official',
+   text:'True or False: By default, the file catalog lists all "interesting" files ever seen in the environment.',
+   type:'single',options:['True','False'],correct:[0],
+   explanation:'TRUE (A) — the file catalog is a persistent database of all interesting (executable, script, etc.) files ever seen across all managed endpoints. Files remain in the catalog even after deletion from an endpoint. Confirmed official answer.'},
+  {id:8,domain:'Rules',src:'official',
+   text:'Which approval method globally approves all files located within a particular file path on an agent?',
+   type:'single',options:['Execution Control','Trusted Directory','File Creation Control','Trusted Path'],correct:[1],
+   explanation:'B — Trusted Directory globally approves all files within a specified folder path. Trusted Path is a Custom Rule type. Execution Control approves specific files by context. Confirmed official answer.'},
+  {id:9,domain:'Rules',src:'official',
+   text:'Which two write actions are available for a File Integrity Control rule?',
+   type:'multi',options:['Block','Report','Approve','Allow','Ban'],correct:[0,1],
+   explanation:'A and B — Block and Report. File Integrity Control rules have two write actions: Block (prevent the write from occurring) and Report (log the write attempt without blocking). Confirmed official answer.'},
+  {id:10,domain:'Rules',src:'official',
+   text:'True or False: A File Creation Control rule is the first type of rule you should consider for resolving a block event.',
+   type:'single',options:['True','False'],correct:[0],
+   explanation:'TRUE (A) — confirmed official answer. File Creation Control is the first rule type to consider when resolving a block event.'},
+
+  // COURSE QUIZ QUESTIONS — answered from slide content
+  {id:11,domain:'Policies',src:'course',
+   text:'True or False: Policies can be assigned to endpoints through the Active Directory user information.',
+   type:'single',options:['True','False'],correct:[0],
+   explanation:'TRUE — per course slide "Assigning Policies": you can configure the App Control Agent to assign policies automatically based on mappings to AD Computers, AD Users, OR AD Groups. All three AD object types are supported for automatic policy assignment.'},
+  {id:12,domain:'Policies',src:'course',
+   text:'Which enforcement level permits unapproved executables to run but tracks them and records the first instance of a permitted file execution and all blocked executions?',
+   type:'single',options:['Visibility Mode','Low Enforcement','Medium Enforcement','High Enforcement'],correct:[1],
+   explanation:'LOW enforcement — exact course definition: "Permits unapproved executables to run but tracks them. Records first instance of a permitted file execution and all blocked executions." Source: Module 3 Modes and Enforcement Levels slide.'},
+  {id:13,domain:'Policies',src:'course',
+   text:'Which enforcement level blocks unapproved executables but displays a dialog box to give approval options?',
+   type:'single',options:['Visibility Mode','Low Enforcement','Medium Enforcement','High Enforcement'],correct:[2],
+   explanation:'MEDIUM enforcement — exact course definition: "Blocks unapproved executables, but displays dialog box to give options. Users cannot permit the execution of explicitly banned files." Source: Module 3 Modes and Enforcement Levels slide.'},
+  {id:14,domain:'Computers',src:'course',
+   text:'Which Saved View on the Computers page will show computers that are not currently communicating with the server?',
+   type:'single',options:['Active computers','Connected computers','Disconnected computers','Computers requiring upgrade'],correct:[2],
+   explanation:'"Disconnected computers" — exact course definition: "Computers running agents NOT currently connected to the server." Source: Module 4 Saved Views slide.'},
+  {id:15,domain:'Computers',src:'course',
+   text:'Which Saved View on the Computers page will show computers that are a "gold master" for virtualization purposes?',
+   type:'single',options:['Cloned computers','Active computers','Computers in local approval','Template computers'],correct:[3],
+   explanation:'"Template computers" — exact course definition: "Computers that are templates for cloned computers." A gold master/golden image is a template. Source: Module 4 Saved Views slide.'},
+  {id:16,domain:'Computers',src:'course',
+   text:'What does a YELLOW status dot mean on the Computers page?',
+   type:'single',options:['Disconnected and up to date','Connected and up to date','Connected but unsupported — agent is out of date or computer requires a reboot','Connected but health check failed'],correct:[2],
+   explanation:'Yellow = "Connected but unsupported. A Yellow dot can occur when the agent is out of date or when the computer requires a reboot." Source: Module 4 Viewing Connected Status slide.'},
+  {id:17,domain:'Computers',src:'course',
+   text:'What does a RED status dot mean on the Computers page?',
+   type:'single',options:['Disconnected and requires update','Connected and up to date','Connected but unsupported','Connected but health check failed — requires immediate attention'],correct:[3],
+   explanation:'Red = "Connected but the health check failed. The computer requires your immediate attention." Source: Module 4 Viewing Connected Status slide.'},
+  {id:18,domain:'Rules',src:'course',
+   text:'Which of the following is true of rules in App Control? (Choose THREE)',
+   type:'multi',
+   options:['Rules define the actions you want the agent to take in response to file, directory, or process activity','Rules optimize your system\'s performance by automatically acting when file criteria are met','Rules can protect file integrity','Rules are only applied globally — they cannot be policy-specific','Rules can create a trusted file path for distributing software'],
+   correct:[0,1,2],
+   explanation:'A, B, and C — per course slide "About Rules": Rules define actions for file/directory/process activity; Rules optimize performance (automatically act when criteria are met); Rules can protect file integrity. D is false — custom rules ARE policy-specific per the Custom Rule Types slide. E (trusted path) is also true per the slide but the question asks for the first three from the course.'},
+  {id:19,domain:'Rules',src:'course',
+   text:'Which custom rule type would you use to prevent a file from being modified?',
+   type:'single',options:['Trusted Path','Execution Control','File Integrity Control','File Creation Control'],correct:[2],
+   explanation:'File Integrity Control — per course quiz Q161926 and the Custom Rule Types slide: File Integrity Control is used to prevent a file from being modified. Write actions available: Block or Report.'},
+  {id:20,domain:'Rules',src:'course',
+   text:'Which custom rule type would you use to create a repository of installers for execution?',
+   type:'single',options:['Execution Control','Trusted Path','File Creation Control','Performance Optimization'],correct:[1],
+   explanation:'Trusted Path — per course quiz Q161927. Trusted Path creates a trusted file path for distributing software — all files within a designated path are approved for execution. Classic use case: software distribution/installer repository.'},
+  {id:21,domain:'Rules',src:'course',
+   text:'Which custom rule type would you use to restrict the execution of specific binaries?',
+   type:'single',options:['File Integrity Control','Trusted Path','Execution Control','File Creation Control'],correct:[2],
+   explanation:'Execution Control — per course quiz Q161928. Execution Control allows or blocks specific files from executing based on path, process, and user context.'},
+  {id:22,domain:'Tools',src:'course',
+   text:'Which tool can you use to create notifications about specific events in your environment?',
+   type:'single',options:['Meters','Alerts','Find Files','Approval Requests'],correct:[1],
+   explanation:'Alerts — per course quiz Q161306 and the Available Tools slide: "Alerts provide notifications in the console and by email when certain conditions are met."'},
+  {id:23,domain:'Tools',src:'course',
+   text:'Which tool enables you to monitor the number of executions of files you specify, and the users and computers executing them?',
+   type:'single',options:['Alerts','Find Files','Approval Requests','Meters'],correct:[3],
+   explanation:'Meters — per course quiz Q161307 and the Available Tools slide: "Meters monitor the number of executions of named files, and the users and computers executing them."'},
+  {id:24,domain:'Tools',src:'course',
+   text:'Which tool displays a list of file approval requests received from users on computers running the App Control Agent when that user is blocked from a file action and requests that the file be approved?',
+   type:'single',options:['Alerts','Meters','Requested Files','Approval Requests'],correct:[3],
+   explanation:'Approval Requests — per course quiz Q161308 and the Available Tools slide: exact definition matches.'},
+  {id:25,domain:'Tools',src:'course',
+   text:'The __________ alert occurs when a locally unapproved file appears on more than a percentage of computers for the policies and time period you specify.',
+   type:'single',options:['File Activity: Blocked File','File Prevalence','File Activity: Propagating File','Baseline Drift'],correct:[2],
+   explanation:'File Activity: Propagating File — per course quiz Q161309 and the About Alerts (2) slide: "Alerts when a locally unapproved file appears on more than a percentage of computers for the policies and time period you configure."'},
+  {id:26,domain:'Events',src:'course',
+   text:'True or False: You can connect App Control to an external Data Analytics solution to do further data analysis.',
+   type:'single',options:['True','False'],correct:[0],
+   explanation:'TRUE — per course quiz Q161301. App Control supports connection to external Data Analytics solutions for additional analysis beyond what is available in the console.'},
+  {id:27,domain:'Events',src:'course',
+   text:'Other than the Events page, where can you monitor events in your environment?',
+   type:'single',options:['The Tools menu','The Assets page','Dashboards (under Reports menu)','The Policies page'],correct:[2],
+   explanation:'Dashboards — per course quiz Q161322. The Reports menu contains both Events and Dashboards. Dashboards provide another way to view and monitor event activity in your environment.'},
+  {id:28,domain:'Baseline Drift',src:'course',
+   text:'Which term refers to the reference against which you compare a target in Baseline Drift?',
+   type:'single',options:['Snapshot','Target','Baseline','Drift'],correct:[2],
+   explanation:'Baseline — per course quiz Q161323 and the Baseline Drift Terminology slide: "Baseline = reference against which you compare the target."'},
+  {id:29,domain:'Baseline Drift',src:'course',
+   text:'Which term refers to the files added, changed, and deleted in the target?',
+   type:'single',options:['Risk','Weighted drift','Baseline','Drift'],correct:[3],
+   explanation:'Drift — per course quiz Q161324 and the Basic Drift Values slide: "Drift is the amount of drift measured simply in terms of files added, changed, and (if configured) deleted in the target."'},
+  {id:30,domain:'Baseline Drift',src:'course',
+   text:'Which term refers to a calculation similar to weighted drift, but adjusted so that files believed to pose no threat show a risk of zero?',
+   type:'single',options:['Drift','Weighted drift','Risk','% weighted drift'],correct:[2],
+   explanation:'Risk — per course quiz Q161325 and the Basic Drift Values slide: "Risk is a calculation similar to weighted drift, but adjusted so that files believed to pose no threat show a risk of zero."'},
+  {id:31,domain:'Baseline Drift',src:'course',
+   text:'True or False: Baseline Drift reports run automatically.',
+   type:'single',options:['True','False'],correct:[1],
+   explanation:'FALSE — per course quiz Q161302. The two pre-configured Baseline Drift reports ("Drift of all computers" and "Daily drift of all computers") both have Status: Disabled by default. They must be enabled and configured before they will run.'},
+  {id:32,domain:'Policies',src:'course',
+   text:'When transitioning a computer from Low Enforcement to High Enforcement, what happens to unapproved files by default?',
+   type:'single',options:['They are immediately blocked and cannot run','They are automatically deleted from the endpoint','They automatically become locally approved — this is the default behavior','They remain unapproved and must be manually reviewed'],correct:[2],
+   explanation:'They automatically become locally approved — per course slide "Viewing Policy Details": "When you transition an endpoint from Visibility or Low Enforcement Level to either Medium or High Enforcement Level, any unapproved files automatically become locally approved." This is a default setting — to disable it, deselect the "Locally approve unapproved files on transition" checkbox in the policy.'},
+  {id:33,domain:'Architecture',src:'course',
+   text:'What is the default username and password for the Carbon Black App Control console after installation?',
+   type:'single',options:['administrator / password','admin / admin','root / root','cbadmin / cbadmin'],correct:[1],
+   explanation:'"admin" for both username and password — per course slide "Reviewing the Console (2)": "By default, the console user name and password is admin. You must change the password immediately after the installation."'},
+  {id:34,domain:'Policies',src:'course',
+   text:'Tamper Protection in Carbon Black App Control prevents which of the following?',
+   type:'single',options:['Unapproved files from executing','The App Control Agent from being disabled or removed','Users from modifying policy settings in the console','Baseline drift from occurring on endpoints'],correct:[1],
+   explanation:'Tamper Protection prevents the Carbon Black App Control Agent from being disabled or removed — per course slide "Assigning Policies": "Tamper Protection prevents the Carbon Black App Control Agent from being disabled or removed."'}
+];
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  el.classList.add('active');
+}
+
+function buildStudyGuide() {
+  const nav = document.getElementById('domainNav');
+  const cards = document.getElementById('domainCards');
+  DOMAINS.forEach((d, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'domain-chip' + (i === 0 ? ' active' : '');
+    chip.textContent = d.title;
+    chip.onclick = () => selectDomain(d.id);
+    nav.appendChild(chip);
+    const card = document.createElement('div');
+    card.className = 'domain-card' + (i === 0 ? ' active' : '');
+    card.id = 'domain-' + d.id;
+    card.innerHTML = d.html;
+    cards.appendChild(card);
+  });
+}
+
+function selectDomain(id) {
+  document.querySelectorAll('.domain-chip').forEach((c,i) => c.classList.toggle('active', DOMAINS[i].id === id));
+  document.querySelectorAll('.domain-card').forEach(c => c.classList.toggle('active', c.id === 'domain-' + id));
+}
+
+let currentQ = 0, answers = {}, submitted = {}, score = 0;
+function buildQuiz() { renderQuestion(0); }
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const area = document.getElementById('quizArea');
+  const done = Object.keys(submitted).length;
+  document.getElementById('progressFill').style.width = (done / QUESTIONS.length * 100) + '%';
+  document.getElementById('progressText').textContent = done + ' / ' + QUESTIONS.length;
+  const isSubmitted = !!submitted[q.id];
+  const ua = answers[q.id] || [];
+  const srcLabel = q.src === 'official' ? '✓ OFFICIAL' : '📚 COURSE';
+  const opts = q.options.map((o, oi) => {
+    let cls = 'option-btn';
+    if (isSubmitted) { if (q.correct.includes(oi)) cls += ' correct'; else if (ua.includes(oi)) cls += ' incorrect'; }
+    else if (ua.includes(oi)) cls += ' selected';
+    return `<button class="${cls}" onclick="selectOption(${q.id},${oi},'${q.type}')" ${isSubmitted?'disabled':''}><span class="option-letter">${String.fromCharCode(65+oi)}</span><span>${o}</span></button>`;
+  }).join('');
+  area.innerHTML = `<div class="quiz-card">
+    <div class="q-number">Question ${idx+1} of ${QUESTIONS.length}</div>
+    <span class="q-tag">${q.domain}</span><span class="q-source">${srcLabel}</span>
+    ${q.type==='multi'?'<div class="multi-hint" style="margin-top:8px;">Select all that apply</div>':''}
+    <div class="q-text">${q.text}</div>
+    <div class="options">${opts}</div>
+    ${!isSubmitted?`<button class="submit-btn" id="submitBtn" onclick="submitAnswer(${q.id})" ${ua.length===0?'disabled':''}>Check answer</button>`:''}
+    <div class="explanation ${isSubmitted?'show':''}">${q.explanation}</div>
+  </div>
+  <div class="quiz-nav">
+    <button class="nav-btn" onclick="goQ(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+    ${idx < QUESTIONS.length-1 ? `<button class="nav-btn primary" onclick="goQ(${idx+1})">Next →</button>` : `<button class="nav-btn primary" onclick="showScore()">See results</button>`}
+  </div>`;
+}
+
+function selectOption(qid, oi, type) {
+  if (!answers[qid]) answers[qid] = [];
+  if (type==='single') answers[qid]=[oi];
+  else { const i=answers[qid].indexOf(oi); if(i>-1) answers[qid].splice(i,1); else answers[qid].push(oi); }
+  const btn=document.getElementById('submitBtn');
+  if(btn) btn.disabled=answers[qid].length===0;
+  renderQuestion(currentQ);
+}
+
+function submitAnswer(qid) {
+  const q=QUESTIONS.find(q=>q.id===qid);
+  const ua=answers[qid]||[];
+  const ok=JSON.stringify(ua.slice().sort())===JSON.stringify(q.correct.slice().sort());
+  submitted[qid]={correct:ok};
+  if(ok) score++;
+  renderQuestion(currentQ);
+}
+
+function goQ(idx) { currentQ=idx; renderQuestion(idx); }
+
+function showScore() {
+  document.getElementById('quizArea').style.display='none';
+  const sc=document.getElementById('scoreCard'); sc.classList.add('show');
+  const pct=Math.round(score/QUESTIONS.length*100);
+  document.getElementById('scoreBig').textContent=score+'/'+QUESTIONS.length;
+  const pass=document.getElementById('scorePass');
+  pass.textContent=pct>=80?'✓ Strong — exam ready':'Review weak domains below';
+  pass.style.color=pct>=80?'var(--success)':'var(--danger)';
+  document.getElementById('scoreGrid').innerHTML=`
+    <div class="fact-card"><div class="label">Score</div><div class="value">${pct}%</div></div>
+    <div class="fact-card"><div class="label">Correct</div><div class="value">${score}</div></div>
+    <div class="fact-card"><div class="label">Missed</div><div class="value">${QUESTIONS.length-score}</div></div>`;
+  const ds={};
+  QUESTIONS.forEach(q=>{ if(!ds[q.domain]) ds[q.domain]={c:0,t:0}; ds[q.domain].t++; if(submitted[q.id]?.correct) ds[q.domain].c++; });
+  let html='<h3 style="font-size:14px;font-weight:600;margin-bottom:12px;">By domain</h3>';
+  Object.entries(ds).sort((a,b)=>(a[1].c/a[1].t)-(b[1].c/b[1].t)).forEach(([d,s])=>{
+    const p=Math.round(s.c/s.t*100);
+    const col=p===100?'var(--success)':p>=50?'var(--amber)':'var(--danger)';
+    html+=`<div class="domain-row"><span style="flex:1;font-size:13px;">${d}</span><div class="domain-bar-wrap"><div class="domain-bar" style="width:${p}%;background:${col};"></div></div><span style="font-size:13px;font-family:var(--mono);font-weight:500;color:${col};min-width:32px;text-align:right;">${s.c}/${s.t}</span></div>`;
+  });
+  document.getElementById('domainBreakdown').innerHTML=html;
+}
+
+function resetQuiz() {
+  currentQ=0; answers={}; submitted={}; score=0;
+  document.getElementById('quizArea').style.display='';
+  document.getElementById('scoreCard').classList.remove('show');
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressText').textContent='0 / '+QUESTIONS.length;
+  renderQuestion(0);
+}
+
+const QUICK_QS=[
+  'Walk me through all 5 modes and enforcement levels with exact definitions',
+  'What are the 3 built-in policies and what is each for?',
+  'What are all 5 custom rule types and when do you use each one?',
+  'What is rule expansion and what is 3 paths × 3 processes × 3 users?',
+  'What are all 5 connection status colors and what does each mean?',
+  'What are all 5 Tools and what does each do?',
+  'Walk me through baseline drift terminology — all 4 terms',
+  'Quiz me on all 10 official sample questions',
+  'What happens when you transition from Low to High enforcement?',
+  'Where is each section in the console navigation?'
+];
+
+function buildTutor() {
+  const qqs=document.getElementById('quickQuestions');
+  QUICK_QS.forEach(q=>{
+    const btn=document.createElement('button');
+    btn.className='quick-q'; btn.textContent=q;
+    btn.onclick=()=>{ document.getElementById('chatInput').value=q; sendChat(); };
+    qqs.appendChild(btn);
+  });
+}
+
+let chatHistory=[];
+async function sendChat() {
+  const input=document.getElementById('chatInput');
+  const sendBtn=document.getElementById('chatSend');
+  const msgs=document.getElementById('chatMessages');
+  const text=input.value.trim(); if(!text) return;
+  input.value=''; sendBtn.disabled=true;
+  const um=document.createElement('div'); um.className='msg user'; um.textContent=text;
+  msgs.appendChild(um); msgs.scrollTop=msgs.scrollHeight;
+  chatHistory.push({role:'user',content:text});
+  const th=document.createElement('div'); th.className='msg thinking'; th.textContent='Thinking...';
+  msgs.appendChild(th); msgs.scrollTop=msgs.scrollHeight;
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`You are an expert tutor helping prepare for the 250-600 Carbon Black App Control Administrator exam. Answer ONLY from this verified course content:
+
+ARCHITECTURE: 3 components: (1) Endpoint - App Control Agent, maintains inventory, enforces policies, communicates on port 41002. (2) Server - contains console, interfaces with MS SQL Server database. (3) CB File Reputation Service - cloud, sends metadata (reputation, threat indicators, attack classification) to Server. Two-stage workflow: Stage 1=Initialization, Stage 2=Post-Initialization. Console is browser-based, HTTPS access via https://server_name.domain.extension. Default login = admin/admin, must change immediately.
+
+MODES & ENFORCEMENT: VISIBILITY = tracks files/events, does NOT affect execution or writing. CONTROL mode has 3 levels: LOW = permits unapproved to run but tracks them, records first instance of permitted execution AND all blocked executions. MEDIUM = blocks unapproved, displays dialog box for approval options, users CANNOT permit explicitly banned files. HIGH = no unapproved OR banned files allowed to run, blocked executions tracked in event log. DISABLED = stops ALL enforcement AND tracking, use to debug or remove agent.
+
+BUILT-IN POLICIES: Default Policy = used when computer is in non-existent/deleted policy, computers can automatically move here. Local Approval Policy = permits new unapproved software to be locally approved. Template Policy = used as basis for creating other policies.
+
+POLICY CONFIGURATION (Rules → Policies): Tabs: Advanced, File Rules, Custom Rules, Memory Rules, Registry Rules, Publisher Rules, Rapid Configs, Computers, Device Control Settings. Mode: Visibility/Control/Disabled. Enforcement Level set separately for Connected and Disconnected. Options: Allow Upgrades, Track File Changes, Load Agent in Safe Mode, Suppress Logo In Notifier. Key checkbox: "Locally approve unapproved files on transition from Visibility or Low to Medium or High" - DEFAULT is ON. Policy assignment: manually OR automatically via AD Computers/Users/Groups. Tamper Protection prevents agent from being disabled or removed. Timed Policy Override continues even if machine restarts.
+
+COMPUTER STATUS COLORS (Assets → Computers): Blue=connected+up to date. Gray=disconnected+up to date. Yellow=connected but unsupported (agent out of date OR requires reboot). White/Clear=template computer. Red=connected but health check failed, needs immediate attention.
+
+SAVED VIEWS (Computers): Active, CB EDR deployments, Cloned, Computers in local approval, Computers requiring upgrade, Connected, Disconnected, Duplicate, Template computers.
+
+CUSTOM RULE TYPES (Rules → Software Rules → Custom): All are process-specific, policy-specific, subject to rule ranking. File Integrity Control = prevent file modification, write actions: Block or Report. Trusted Path = repository/directory for installer execution. Execution Control = restrict execution of specific binaries. File Creation Control = most performant and secure (official answer), first rule to consider for block events. Performance Optimization = exclude paths from monitoring. Path methods: full path, directory ending in \\ or \\*, replace C:\\ with *\\ for all drives, UNC path, macros (enter < for path macros, <reg for registry macros). Rule expansion = MULTIPLICATIVE: paths × processes × users. 3×3×3=27.
+
+EVENT RULES: Automated actions (file analysis, file approval, auto bans) when events match filters. Require one event subtype. INDICATOR SETS: Advanced detection features, Advanced Threat indicators grouped in sets (Windows Ransomware, Process Injection, POS Indicators, etc.).
+
+TOOLS (Tools menu): Meters = monitor number of executions of named files and who runs them, monitoring begins almost immediately. Alerts = notifications in console and email, priorities: Red=High, Orange=Medium, Yellow/Green=Low. Built-in and user-created alert types. User-created types: File Activity: Propagating File (locally unapproved appears on >X% of computers), File Activity: Blocked File, Baseline Drift, File Prevalence, Event. Find Files = locates all instances of executable on network. Approval Requests = file approval requests from users blocked from file action. Requested Files = 3 tabs: Uploaded, Analyzed, Diagnostic.
+
+EVENTS (Reports → Events): Records files blocked, files executed, system management processes, actions by console users. Events recorded on agents AND server. Can connect to external Data Analytics solution. Other monitoring location = Dashboards (Reports → Dashboards).
+
+BASELINE DRIFT (Reports → Baseline Drift): Terminology: Target=collection of current files to analyze. Baseline=reference against which you compare the target. Snapshot=set of files from one or more computers. Drift=files added, changed, deleted in target. Weighted drift=drift adjusted for trust level, threat level, file type, associations. Risk=like weighted drift but files posing no threat show zero. Baseline Drift Report=report of differences between baseline and target. Two pre-configured reports: "Drift of all computers" and "Daily drift of all computers" - BOTH disabled by default. Reports run automatically = FALSE. View as dynamic tables or graphic charts on dashboard.
+
+OFFICIAL SAMPLE ANSWERS: Q1=True(A), Q2=File Creation Control(B), Q3=*.exe pattern(D), Q4=High Enforcement(A), Q5=27(D), Q6=Red(D), Q7=True(A), Q8=Trusted Directory(B), Q9=Block+Report(A,B), Q10=True(A).
+
+Be concise and admin-focused. Give step-by-step console navigation when relevant.`,
+        messages:chatHistory
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.find(b=>b.type==='text')?.text||'No response.';
+    chatHistory.push({role:'assistant',content:reply});
+    th.remove();
+    const am=document.createElement('div'); am.className='msg assistant'; am.textContent=reply;
+    msgs.appendChild(am); msgs.scrollTop=msgs.scrollHeight;
+  } catch(e) { th.textContent='Error — check connection.'; }
+  sendBtn.disabled=false; input.focus();
+}
+
+buildStudyGuide();
+buildQuiz();
+buildTutor();
+</script>
+</body>
+</html>
